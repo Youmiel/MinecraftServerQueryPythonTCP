@@ -50,13 +50,16 @@ class MinecraftQuery(object):
             status = {"Version": "", "MOTD": "", "OnlinePlayers": 0, "MaxPlayers": 0}
             from json import loads
             jsonData = loads(self.__getDataNew())
-            status["Version"] = findall("(\d.\d.\d)", jsonData["version"]["name"])[0]
-            status["MOTD"] = sub("§\w", "", jsonData["description"])
+            #status["Version"] = findall("(\d.\d.\d)", jsonData["version"]["name"])[0]
+            #status["MOTD"] = sub("§\w", "", jsonData["description"])
+            status["Version"] = sub("\x00", "", jsonData["version"]["name"])  # replaced with old method (in getResult()), because new method doesn't work with 21w11a and idk why
+            status["MOTD"] = jsonData["description"]["text"]  # raw JSON text
             status["OnlinePlayers"] = int(jsonData["players"]["online"])
             status["MaxPlayers"] = int(jsonData["players"]["max"])
             status["ServerIcon"]= sub("\n", "", jsonData["favicon"])
         except Exception as e:
             status["Error"] = repr(e)
+            traceback.print_exc()
         finally:
             return status
             
